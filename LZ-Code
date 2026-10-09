@@ -1,1 +1,30 @@
+# LZ77 - Tag = <Position, Length, Next Symbol>
 
+SEARCH_WINDOW = 25
+
+
+def compress(data):
+    tags = []
+    i = 0
+    while i < len(data):
+        best_position = 0
+        best_length = 0
+        for start in range(max(0, i - SEARCH_WINDOW), i):
+            length = 0
+            while i + length < len(data) - 1 and data[start + length] == data[i + length]:
+                length += 1
+            if length > 0 and length >= best_length:   # >= picks the closest match
+                best_length = length
+                best_position = i - start
+        tags.append((best_position, best_length, data[i + best_length]))
+        i = i + best_length + 1
+    return tags
+
+
+def decompress(tags):
+    data = ""
+    for position, length, next_symbol in tags:
+        for _ in range(length):
+            data += data[-position]
+        data += next_symbol
+    return data
