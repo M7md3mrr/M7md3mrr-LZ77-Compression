@@ -28,3 +28,23 @@ def decompress(tags):
             data += data[-position]
         data += next_symbol
     return data
+
+def do_compress():
+    name = input("Input file: ")
+    out = input("Compressed file: ")
+    data = open(name, "r", encoding="utf-8").read()
+    tags = compress(data)
+
+    f = open(out, "w", encoding="utf-8")
+    for position, length, next_symbol in tags:
+        if next_symbol == "\n":
+            next_symbol = "\\n"
+        f.write(f"{position} {length} {next_symbol}\n")
+    f.close()
+
+    position_bits = max(t[0] for t in tags).bit_length()
+    length_bits = max(t[1] for t in tags).bit_length()
+    tag_size = position_bits + length_bits + 8
+    print("Original Size =", len(data), "*", 8, "=", len(data) * 8, "bits")
+    print("Tag size =", position_bits, "+", length_bits, "+ 8 =", tag_size, "bits")
+    print("Compressed Size =", len(tags), "*", tag_size, "=", len(tags) * tag_size, "bits")
